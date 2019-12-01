@@ -30,7 +30,10 @@ public class ReservationService {
     }
 
     public List<RoomReservation> getRoomReservationsForDate(Date date){
+         //get a list of all the rooms
         Iterable<Room> rooms = this.roomRepository.findAll();
+
+        //fill roomreservation map with all the properties
         Map<Long, RoomReservation> roomReservationMap = new HashMap<>();
         rooms.forEach(room->{
             RoomReservation roomReservation = new RoomReservation();
@@ -39,11 +42,14 @@ public class ReservationService {
             roomReservation.setRoomNumber(room.getNumber());
             roomReservationMap.put(room.getId(), roomReservation);
         });
+
+        //get a list of all the reservations
         Iterable<Reservation> reservations = this.reservationRepository.findByDate(new java.sql.Date(date.getTime()));
-        if(null!=reservations){
+
+        if(reservations!=null){
             reservations.forEach(reservation -> {
                 Guest guest = this.guestRepository.findOne(reservation.getGuestId());
-                if(null!=guest){
+                if(guest!=null){
                     RoomReservation roomReservation = roomReservationMap.get(reservation.getId());
                     roomReservation.setDate(date);
                     roomReservation.setFirstName(guest.getFirstName());
@@ -52,6 +58,7 @@ public class ReservationService {
                 }
             });
         }
+        //create returnobject
         List<RoomReservation> roomReservations = new ArrayList<>();
         for(Long roomId:roomReservationMap.keySet()){
             roomReservations.add(roomReservationMap.get(roomId));
